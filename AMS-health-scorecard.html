@@ -1,0 +1,36 @@
+<!-- Main Assessment UI Structure -->
+<div id="assessment-form">
+  <h3>IT Applications Operations Health Assessment</h3>
+  
+  <label>1. How automated is your application monitoring?</label>
+  <select id="q1">
+    <option value="0">Manual / No Monitoring (0 pts)</option>
+    <option value="50">Partial Alerts (50 pts)</option>
+    <option value="100">Fully Automated / Self-Healing (100 pts)</option>
+  </select>
+
+  <button onclick="calculateAndSubmit()">Submit Assessment</button>
+</div>
+
+<script>
+function calculateAndSubmit() {
+  // 1. Gather inputs
+  const scoreQ1 = parseInt(document.getElementById('q1').value);
+  
+  // 2. Calculate the health score (0 - 100)
+  const finalScore = scoreQ1; // Expand math here for more questions
+
+  // 3. Send data to your backend workflow securely
+  fetch('https://your-webhook-url.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      score: finalScore,
+      answers: { monitoring: scoreQ1 },
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(response => alert('Assessment submitted! PDF and Email draft are being generated.'))
+  .catch(error => console.error('Error:', error));
+}
+</script>
