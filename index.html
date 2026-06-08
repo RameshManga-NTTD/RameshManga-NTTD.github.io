@@ -1,36 +1,88 @@
-<!-- Main Assessment UI Structure -->
-<div id="assessment-form">
-  <h3>IT Applications Operations Health Assessment</h3>
-  
-  <label>1. How automated is your application monitoring?</label>
-  <select id="q1">
-    <option value="0">Manual / No Monitoring (0 pts)</option>
-    <option value="50">Partial Alerts (50 pts)</option>
-    <option value="100">Fully Automated / Self-Healing (100 pts)</option>
-  </select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assessment</title>
+    <!-- Include html2pdf.js for a perfect visual PDF export -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; color: #333; }
+        .view { display: none; }
+        .active { display: block; }
+        .btn { background: #0073e6; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; }
+        #pdf-report { padding: 30px; border: 1px solid #ddd; background: #fff; max-width: 600px; }
+    </style>
+</head>
+<body>
 
-  <button onclick="calculateAndSubmit()">Submit Assessment</button>
-</div>
+    <!-- VIEW 1: THE INPUT FORM -->
+    <div id="formView" class="view active">
+        <h2>Readiness Assessment</h2>
+        <label>Product Knowledge (1-10):</label><br>
+        <input type="number" id="q1" min="1" max="10" style="margin-bottom:15px;"><br>
+        
+        <label>Objection Handling (1-10):</label><br>
+        <input type="number" id="q2" min="1" max="10" style="margin-bottom:15px;"><br>
+        
+        <button class="btn" onclick="calculateAndShowReport()">Generate Report</button>
+    </div>
 
-<script>
-function calculateAndSubmit() {
-  // 1. Gather inputs
-  const scoreQ1 = parseInt(document.getElementById('q1').value);
-  
-  // 2. Calculate the health score (0 - 100)
-  const finalScore = scoreQ1; // Expand math here for more questions
+    <!-- VIEW 2: THE REPORT & DOWNLOAD PAGE -->
+    <div id="reportView" class="view">
+        <!-- This entire container will be captured cleanly into the PDF -->
+        <div id="pdf-report">
+            <h2 style="color: #0073e6;">Your Performance Report</h2>
+            <hr>
+            <p><strong>Generated on:</strong> <span id="reportDate"></span></p>
+            <p>Based on your selections, your overall operational readiness rating is:</p>
+            <h1 style="font-size: 48px; margin: 10px 0;" id="finalScore">0%</h1>
+            <p style="color: #666;">This report was securely generated via Highspot Integration.</p>
+        </div>
+        
+        <br>
+        <button class="btn" onclick="downloadPDF()">Download PDF Report</button>
+        <button class="btn" style="background:#666;" onclick="resetForm()">Take Again</button>
+    </div>
 
-  // 3. Send data to your backend workflow securely
-  fetch('https://your-webhook-url.com', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      score: finalScore,
-      answers: { monitoring: scoreQ1 },
-      timestamp: new Date().toISOString()
-    })
-  })
-  .then(response => alert('Assessment submitted! PDF and Email draft are being generated.'))
-  .catch(error => console.error('Error:', error));
-}
-</script>
+    <script>
+        function calculateAndShowReport() {
+            // 1. Grab inputs and perform math
+            const q1 = parseInt(document.getElementById('q1').value) || 0;
+            const q2 = parseInt(document.getElementById('q2').value) || 0;
+            const percentage = ((q1 + q2) / 20) * 100;
+
+            // 2. Inject calculated data into the Report View
+            document.getElementById('finalScore').innerText = percentage.toFixed(0) + "%";
+            document.getElementById('reportDate').innerText = new Date().toLocaleDateString();
+
+            // 3. Swap the views smoothly inside the Highspot iframe
+            document.getElementById('formView').classList.remove('active');
+            document.getElementById('reportView').classList.add('active');
+        }
+
+        function downloadPDF() {
+            // Target the clean report element container
+            const element = document.getElementById('pdf-report');
+            
+            // PDF formatting rules
+            const opt = {
+                margin:       10,
+                filename:     'Highspot_Assessment_Report.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Generate and trigger native browser download modal inside Highspot
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function resetForm() {
+            document.getElementById('q1').value = '';
+            document.getElementById('q2').value = '';
+            document.getElementById('reportView').classList.remove('active');
+            document.getElementById('formView').classList.add('active');
+        }
+    </script>
+</body>
+</html>
