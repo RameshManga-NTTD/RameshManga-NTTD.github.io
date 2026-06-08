@@ -1,0 +1,34 @@
+name: "CLA Assistant"
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, synchronize, closed]
+
+# Core permissions required for the bot to read PRs and post comments
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  CLAAssistant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "CLA Assistant Routine"
+        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
+        uses: contributor-assistant/github-action@v2.5.1
+        with:
+          # Points directly to your repo's CLA file
+          path-to-document: 'https://github.com/RameshManga-NTTD/RameshManga-NTTD.github.io/blob/main/'
+          
+          # The bot will automatically create and maintain this branch to store signatures
+          path-to-signatures: 'signatures/cla.json'
+          branch: 'cla-signatures'
+          
+          # Customizes the message the bot leaves on the Pull Request
+          custom-pr-sign-comment: 'Thank you for your submission! Please review our Corporate CLA. To accept these terms, please reply to this comment with the exact phrase: **I have read the CLA Document and I hereby sign the CLA**'
+          
+          # Allows you to exempt bots (like Dependabot) from needing to sign
+          allowlist: dependabot[bot],greenkeeper[bot]
