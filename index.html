@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Assessment</title>
+    <title>NTT DATA AMS Health Assessment Scorecard</title>
     <style>
         body { font-family: sans-serif; padding: 20px; color: #333; }
         .view { display: none; }
@@ -15,8 +15,15 @@
 
     <!-- VIEW 1: THE INPUT FORM -->
     <div id="formView" class="view active">
-        <h2>Readiness Assessment</h2>
-        <label>Product Knowledge (1-10):</label><br>
+        <h2>SLA Performance & Service Quality</h2>
+        <label for="q1">What proportion of applications across the portfolio are meeting their agreed availability SLA targets?</label><br>
+        <select id="q1" name="q1">
+            <option value="0">< 50% of apps meeting SLA</option>
+            <option value="25">50=70% meeting SLA</option>
+            <option value=55">70-85% meeting SLA</option>
+            <option value="80">85-95% meeting SLA</option>
+            <option value="100">> 95% of apps meeting SLA</option>
+        </select>
         <input type="number" id="q1" min="1" max="10" style="margin-bottom:15px;"><br>
         
         <label>Objection Handling (1-10):</label><br>
