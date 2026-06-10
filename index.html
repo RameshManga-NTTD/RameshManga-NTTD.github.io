@@ -1,107 +1,909 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>NTT DATA AMS Health Assessment Scorecard</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; color: #333; }
-        .view { display: none; }
-        .active { display: block; }
-        .btn { background: #0073e6; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; }
-        #pdf-report { padding: 30px; border: 1px solid #ddd; background: #fff; max-width: 600px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IT Application Operations — Health Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+background: #020817;
+color: #f1f5f9;
+font-family: 'DM Sans', sans-serif;
+min-height: 100vh;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* NAV */
+#topnav {
+position: sticky; top: 0; z-index: 200;
+background: linear-gradient(180deg,#0f172a 0%,#020817 100%);
+border-bottom: 1px solid #1e293b;
+backdrop-filter: blur(20px);
+padding: 0 32px;
+}
+.nav-inner {
+max-width: 980px; margin: 0 auto;
+display: flex; align-items: center; justify-content: space-between;
+height: 64px; flex-wrap: wrap; gap: 10px;
+}
+.nav-brand { display: flex; flex-direction: column; gap: 2px; }
+.nav-label {
+display: flex; align-items: center; gap: 7px;
+font-size: 11px; color: #64748b; letter-spacing: .15em; text-transform: uppercase; font-weight: 600;
+}
+.nav-dot {
+width: 7px; height: 7px; border-radius: 50%;
+background: #00D4FF; box-shadow: 0 0 8px #00D4FF;
+}
+.nav-title {
+font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+color: #f8fafc; letter-spacing: -0.02em;
+}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-progress { font-size: 12px; color: #64748b; }
+.nav-progress span { color: #00D4FF; font-weight: 700; }
+.nav-badge {
+background: #1e293b; border: 1px solid #334155; border-radius: 20px;
+padding: 4px 14px; font-size: 12px; color: #94a3b8;
+}
+.tab-bar {
+max-width: 980px; margin: 0 auto;
+display: flex; gap: 0; border-top: 1px solid #1e293b;
+}
+.tab-btn {
+background: none; border: none; cursor: pointer;
+padding: 12px 28px; font-family: 'DM Sans', sans-serif;
+font-size: 13px; font-weight: 600; color: #64748b;
+border-bottom: 2px solid transparent; transition: all .2s;
+letter-spacing: .03em;
+}
+.tab-btn.active { color: #00D4FF; border-bottom-color: #00D4FF; }
+.tab-btn:hover:not(.active) { color: #94a3b8; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* LAYOUT */
+.container { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+
+/* OVERVIEW CARD */
+.overview-card {
+background: linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);
+border: 1px solid #334155; border-radius: 20px;
+padding: 24px 28px; margin-bottom: 28px;
+display: flex; gap: 28px; flex-wrap: wrap; align-items: center;
+}
+
+/* SECTION CARDS */
+.section-label {
+font-size: 11px; color: #64748b; letter-spacing: .12em;
+text-transform: uppercase; font-weight: 600; margin-bottom: 14px;
+}
+.section-card {
+background: linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+border: 1px solid #334155; border-radius: 16px;
+margin-bottom: 10px; overflow: hidden;
+transition: border-color .3s, box-shadow .3s;
+}
+.section-card.open { box-shadow: 0 0 24px rgba(0,212,255,.08); }
+.section-header {
+padding: 16px 22px; cursor: pointer;
+display: flex; align-items: center; gap: 14px; justify-content: space-between;
+}
+.section-header-left { display: flex; align-items: center; gap: 12px; }
+.section-icon { font-size: 20px; line-height: 1; width: 24px; text-align: center; }
+.section-title-text {
+font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+color: #f1f5f9; letter-spacing: .02em;
+}
+.section-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+.section-header-right { display: flex; align-items: center; gap: 14px; }
+.section-score-display { text-align: right; }
+.section-score-num {
+font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; line-height: 1;
+}
+.section-score-label {
+font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-top: 1px;
+}
+.chevron {
+width: 26px; height: 26px; border-radius: 7px;
+display: flex; align-items: center; justify-content: center;
+font-size: 12px; transition: transform .3s;
+}
+.section-card.open .chevron { transform: rotate(180deg); }
+.section-progress-bar { height: 2px; background: #0f172a; margin: 0 22px; }
+.section-progress-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+.section-body { padding: 20px 22px 22px; display: none; }
+.section-card.open .section-body { display: block; }
+
+/* QUESTIONS */
+.question-block { margin-bottom: 22px; }
+.question-block:last-child { margin-bottom: 0; }
+.question-text {
+font-size: 13px; color: #cbd5e1; margin-bottom: 9px;
+font-weight: 500; line-height: 1.55;
+}
+.q-num { font-weight: 700; margin-right: 6px; }
+.q-weight { color: #475569; font-size: 10px; margin-left: 8px; }
+.options-list { display: flex; flex-direction: column; gap: 5px; }
+.option-row {
+padding: 8px 14px; border-radius: 8px; cursor: pointer;
+border: 1px solid #334155; background: transparent;
+display: flex; justify-content: space-between; align-items: center;
+transition: all .15s; user-select: none;
+}
+.option-row:hover { border-color: #475569; }
+.option-row.selected { background: rgba(0,0,0,.12); }
+.option-label { font-size: 12px; color: #94a3b8; }
+.option-row.selected .option-label { color: #f1f5f9; }
+.option-score {
+font-size: 11px; font-weight: 700; color: #475569;
+background: #1e293b; padding: 2px 8px; border-radius: 4px;
+min-width: 30px; text-align: center;
+}
+.option-row.selected .option-score { background: rgba(0,0,0,.2); }
+
+/* SCORE TILES */
+.tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 260px; }
+.score-tile {
+background: #020817; border: 1px solid #1e293b;
+border-radius: 10px; padding: 10px 12px; cursor: pointer;
+transition: border-color .2s;
+}
+.tile-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.tile-icon { font-size: 14px; }
+.tile-score {
+font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800;
+}
+.tile-title { font-size: 10px; color: #94a3b8; font-weight: 500; line-height: 1.3; }
+.tile-bar-wrap { margin-top: 5px; height: 3px; background: #1e293b; border-radius: 2px; }
+.tile-bar { height: 100%; border-radius: 2px; transition: width .5s; }
+.tile-empty { font-size: 9px; color: #475569; margin-top: 4px; }
+
+/* REPORT PAGE */
+.report-header-card {
+background: linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+border: 1px solid #334155; border-radius: 20px;
+padding: 28px 32px; margin-bottom: 24px;
+display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+}
+.report-title-block { flex: 1; }
+.report-title {
+font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+color: #f8fafc; margin-bottom: 4px;
+}
+.report-date { font-size: 12px; color: #64748b; }
+.report-incomplete-msg {
+text-align: center; padding: 80px 20px;
+font-size: 14px; color: #64748b;
+}
+.report-incomplete-msg strong { color: #94a3b8; display: block; font-size: 18px; margin-bottom: 8px; }
+
+.metrics-row {
+display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px;
+}
+.metric-card {
+background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px 18px;
+}
+.metric-label {
+font-size: 10px; color: #64748b; text-transform: uppercase;
+letter-spacing: .1em; margin-bottom: 6px;
+}
+.metric-value {
+font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800;
+}
+
+.report-section-title {
+font-size: 11px; color: #64748b; text-transform: uppercase;
+letter-spacing: .12em; font-weight: 600; margin-bottom: 14px;
+padding-top: 20px; border-top: 1px solid #1e293b; margin-top: 4px;
+}
+.report-section-title:first-child { border-top: none; padding-top: 0; }
+
+/* SECTION BREAKDOWN */
+.breakdown-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.breakdown-icon { font-size: 14px; width: 18px; flex-shrink: 0; }
+.breakdown-info { flex: 1; }
+.breakdown-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.breakdown-name { font-size: 12px; color: #cbd5e1; font-weight: 500; }
+.breakdown-score { font-size: 12px; font-weight: 700; }
+.breakdown-bar-wrap { height: 4px; background: #1e293b; border-radius: 2px; }
+.breakdown-bar { height: 100%; border-radius: 2px; }
+
+/* RADAR in report */
+.report-visuals {
+display: flex; gap: 24px; flex-wrap: wrap;
+align-items: flex-start; margin-bottom: 24px;
+}
+.report-radar { flex: 0 0 auto; }
+.report-breakdown { flex: 1; min-width: 280px; }
+
+/* PRIORITY ACTIONS */
+.action-card {
+border-radius: 10px; padding: 13px 16px; margin-bottom: 10px;
+display: flex; gap: 12px; align-items: flex-start;
+}
+.action-warn { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+.action-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.action-desc { font-size: 11px; color: #94a3b8; line-height: 1.55; }
+.all-good { font-size: 13px; color: #10B981; }
+
+/* GAUGE */
+.gauge-wrap { text-align: center; }
+.gauge-label {
+font-size: 11px; color: #64748b; margin-top: 4px;
+letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* RESPONSIVE */
+@media(max-width:640px) {
+.overview-card { flex-direction: column; }
+.tiles-grid { grid-template-columns: 1fr 1fr; }
+.metrics-row { grid-template-columns: 1fr 1fr; }
+.tab-btn { padding: 10px 16px; font-size: 12px; }
+.report-visuals { flex-direction: column; }
+.nav-title { font-size: 15px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- VIEW 1: THE INPUT FORM -->
-    <div id="formView" class="view active">
-        <h2>SLA Performance & Service Quality</h2>
-        <label for="q1">What proportion of applications across the portfolio are meeting their agreed availability SLA targets?</label><br>
-        <select id="q1" name="q1">
-            <option value="0">< 50% of apps meeting SLA</option>
-            <option value="25">50=70% meeting SLA</option>
-            <option value=55">70-85% meeting SLA</option>
-            <option value="80">85-95% meeting SLA</option>
-            <option value="100">> 95% of apps meeting SLA</option>
-        </select>
-        <input type="number" id="q1" min="1" max="10" style="margin-bottom:15px;"><br>
-        
-        <label>Objection Handling (1-10):</label><br>
-        <input type="number" id="q2" min="1" max="10" style="margin-bottom:15px;"><br>
-        
-        <button class="btn" onclick="calculateAndShowReport()">Generate Report</button>
-    </div>
+<!-- NAV -->
+<nav id="topnav">
+<div class="nav-inner">
+<div class="nav-brand">
+<div class="nav-label"><span class="nav-dot"></span>IT Operations</div>
+<div class="nav-title">Application Operations Health Assessment</div>
+</div>
+<div class="nav-right">
+<div class="nav-progress"><span id="nav-answered">0</span> / <span id="nav-total">0</span> answered</div>
+<div class="nav-badge" id="nav-pct">0% complete</div>
+</div>
+</div>
+<div class="tab-bar">
+<button class="tab-btn active" onclick="showPage('assess')">◈ Assessment</button>
+<button class="tab-btn" onclick="showPage('report')">▣ Report</button>
+</div>
+</nav>
 
-    <!-- VIEW 2: THE REPORT & DOWNLOAD PAGE -->
-    <div id="reportView" class="view">
-        <div id="pdf-report">
-            <h2 style="color: #0073e6;">Your Performance Report</h2>
-            <hr>
-            <p><strong>Generated on:</strong> <span id="reportDate"></span></p>
-            <p>Based on your selections, your overall operational readiness rating is:</p>
-            <h1 style="font-size: 48px; margin: 10px 0;" id="finalScore">0%</h1>
-            <p style="color: #666;">This report was securely generated via Highspot Integration.</p>
-        </div>
-        
-        <br>
-        <button class="btn" onclick="openPrintableTab()">Open Printable View</button>
-        <button class="btn" style="background:#666;" onclick="resetForm()">Take Again</button>
-    </div>
+<!-- ASSESSMENT PAGE -->
+<div id="page-assess" class="page active">
+<div class="container">
 
-    <script>
-        function calculateAndShowReport() {
-            const q1 = parseInt(document.getElementById('q1').value) || 0;
-            const q2 = parseInt(document.getElementById('q2').value) || 0;
-            const percentage = ((q1 + q2) / 20) * 100;
+<!-- Overview -->
+<div class="overview-card">
+<!-- Gauge -->
+<div class="gauge-wrap">
+<svg id="gauge-svg" width="210" height="151" viewBox="0 0 210 210"></svg>
+<div class="gauge-label">Overall Health Score</div>
+</div>
+<!-- Radar -->
+<div>
+<svg id="radar-svg" width="220" height="220" viewBox="0 0 220 220"></svg>
+</div>
+<!-- Tiles -->
+<div class="tiles-grid" id="tiles-grid"></div>
+</div>
 
-            document.getElementById('finalScore').innerText = percentage.toFixed(0) + "%";
-            document.getElementById('reportDate').innerText = new Date().toLocaleDateString();
+<!-- Section cards -->
+<div class="section-label">Assessment Areas — click to expand</div>
+<div id="sections-list"></div>
 
-            document.getElementById('formView').classList.remove('active');
-            document.getElementById('reportView').classList.add('active');
-        }
+</div>
+</div>
 
-        function openPrintableTab() {
-            // 1. Get the content inside the report element
-            const reportContent = document.getElementById('pdf-report').innerHTML;
-            
-            // 2. Open a clean, blank browser tab
-            const printWindow = window.open('', '_blank');
-            
-            // 3. Write a brand new HTML document inside that tab, bringing along styles
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Highspot Assessment Report</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 40px; color: #333; background: #fff; }
-                        #pdf-report { max-width: 600px; margin: 0 auto; }
-                    </style>
-                </head>
-                <body>
-                    <div id="pdf-report">
-                        ${reportContent}
-                    </div>
-                    <script>
-                        // Wait for content to render, then open the print/save dialogue
-                        window.onload = function() {
-                            window.print();
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            
-            // 4. Close the document stream so the window finishing loading properly
-            printWindow.document.close();
-        }
+<!-- REPORT PAGE -->
+<div id="page-report" class="page">
+<div class="container">
+<div id="report-content"></div>
+</div>
+</div>
 
-        function resetForm() {
-            document.getElementById('q1').value = '';
-            document.getElementById('q2').value = '';
-            document.getElementById('reportView').classList.remove('active');
-            document.getElementById('formView').classList.add('active');
-        }
-    </script>
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const SECTIONS = [
+{
+id:"sla", title:"SLA Performance & Service Quality", icon:"◈", weight:18, color:"#00D4FF",
+questions:[
+{ id:"sla_1", weight:30, text:"What proportion of applications across the portfolio are meeting their agreed availability SLA targets?",
+options:[{l:"< 50% of apps meeting SLA",s:0},{l:"50–70% meeting SLA",s:25},{l:"70–85% meeting SLA",s:55},{l:"85–95% meeting SLA",s:80},{l:"> 95% of apps meeting SLA",s:100}]},
+{ id:"sla_2", weight:25, text:"How is portfolio-wide SLA performance tracked and reported to IT leadership and business stakeholders?",
+options:[{l:"No centralised tracking in place",s:0},{l:"Ad hoc / manual per-team reporting",s:20},{l:"Periodic reports, inconsistent coverage",s:50},{l:"Formal monthly reporting across the portfolio",s:80},{l:"Real-time dashboards with executive visibility",s:100}]},
+{ id:"sla_3", weight:25, text:"What is the average Mean Time To Restore (MTTR) across P1/P2 incidents in the portfolio?",
+options:[{l:"> 8 hours",s:0},{l:"4–8 hours",s:25},{l:"2–4 hours",s:55},{l:"30 min – 2 hours",s:80},{l:"< 30 minutes",s:100}]},
+{ id:"sla_4", weight:20, text:"Are SLA definitions (availability, response time, support tiers) formally documented and agreed with the business for all critical applications?",
+options:[{l:"No formal SLAs defined",s:0},{l:"Defined for < 30% of apps",s:20},{l:"Defined for 30–70% of apps",s:50},{l:"Defined for > 70% of critical apps",s:80},{l:"Fully documented and regularly reviewed for all apps",s:100}]}
+]
+},
+{
+id:"monitoring", title:"Monitoring & Observability", icon:"⬡", weight:18, color:"#7C3AED",
+questions:[
+{ id:"mon_1", weight:30, text:"What percentage of the application portfolio has active monitoring coverage?",
+options:[{l:"< 25% monitored",s:0},{l:"25–50% monitored",s:20},{l:"50–75% monitored",s:50},{l:"75–90% monitored",s:80},{l:"> 90% with full-stack observability",s:100}]},
+{ id:"mon_2", weight:25, text:"How standardised is the monitoring tooling and approach across the IT operations team?",
+options:[{l:"No standard — each team uses different tools",s:0},{l:"Some shared tooling, highly fragmented",s:20},{l:"Partially standardised, significant gaps",s:50},{l:"Mostly standardised with a defined toolchain",s:80},{l:"Fully standardised platform with unified visibility",s:100}]},
+{ id:"mon_3", weight:25, text:"Is end-user / synthetic experience monitoring in place across key business journeys?",
+options:[{l:"Not in place",s:0},{l:"Planned but not deployed",s:15},{l:"In place for a small subset of apps",s:40},{l:"Covering most critical user journeys",s:75},{l:"Full real-user + synthetic monitoring portfolio-wide",s:100}]},
+{ id:"mon_4", weight:20, text:"How mature is log aggregation, alerting, and correlation across the application estate?",
+options:[{l:"Logs are siloed per team/app, no aggregation",s:0},{l:"Partial centralisation, limited alerting",s:25},{l:"Centralised logging with basic threshold alerts",s:55},{l:"Centralised with structured alerting and routing",s:80},{l:"Intelligent alerting with suppression, correlation, and ML",s:100}]}
+]
+},
+{
+id:"aiops", title:"AIOps & Automation", icon:"◉", weight:14, color:"#F59E0B",
+questions:[
+{ id:"ai_1", weight:30, text:"To what extent is AIOps being used for event correlation and alert noise reduction across IT operations?",
+options:[{l:"No AIOps in use",s:0},{l:"Evaluating / proof of concept stage",s:20},{l:"Deployed for 1–2 limited use cases",s:45},{l:"Deployed across majority of operational domains",s:80},{l:"Fully embedded, continuously learning and improving",s:100}]},
+{ id:"ai_2", weight:35, text:"How advanced is anomaly detection and predictive alerting across the portfolio?",
+options:[{l:"Not in place — purely reactive",s:0},{l:"Rule-based anomaly detection only",s:25},{l:"ML-based detection for some services",s:55},{l:"Predictive alerts for most critical services",s:80},{l:"Proactive prediction across the full estate",s:100}]},
+{ id:"ai_3", weight:35, text:"Is automated or AI-assisted root cause analysis (RCA) and remediation in use?",
+options:[{l:"Manual RCA only, no automation",s:0},{l:"Semi-automated using runbooks/playbooks",s:30},{l:"Automated for known/repeated failure patterns",s:60},{l:"AI-assisted RCA with guided remediation",s:85},{l:"Fully automated RCA with auto-remediation pipelines",s:100}]}
+]
+},
+{
+id:"volumetric", title:"Volumetrics & Capacity Management", icon:"▣", weight:14, color:"#10B981",
+questions:[
+{ id:"vol_1", weight:30, text:"How well is transaction volume, throughput, and usage data tracked across the application portfolio?",
+options:[{l:"No volumetric data collected",s:0},{l:"Ad hoc manual snapshots for some apps",s:20},{l:"Automated collection but inconsistent coverage",s:50},{l:"Continuous tracking with trend analysis for most apps",s:80},{l:"Real-time baselines, seasonal patterns, full coverage",s:100}]},
+{ id:"vol_2", weight:35, text:"How formally is capacity planning conducted across IT operations?",
+options:[{l:"No capacity planning — purely reactive",s:0},{l:"Post-incident reactive only",s:15},{l:"Annual informal review",s:40},{l:"Quarterly proactive planning per domain",s:75},{l:"Continuous automated capacity management",s:100}]},
+{ id:"vol_3", weight:35, text:"How well are peak load, seasonal surges, and burst scenarios managed across the portfolio?",
+options:[{l:"No provisions — frequent capacity breaches",s:0},{l:"Manual scaling, slow and inconsistent response",s:20},{l:"Pre-scaled for known peaks, limited automation",s:50},{l:"Auto-scaling with some manual oversight",s:80},{l:"Fully elastic, automated scaling across all services",s:100}]}
+]
+},
+{
+id:"change", title:"Change Frequency & Release Control", icon:"◫", weight:14, color:"#EF4444",
+questions:[
+{ id:"chg_1", weight:25, text:"How mature and consistently followed is the change management process across all IT teams?",
+options:[{l:"No formal change process exists",s:0},{l:"Process exists but inconsistently followed",s:20},{l:"Documented, partial adoption across teams",s:50},{l:"Mature process consistently followed organisation-wide",s:80},{l:"Automated gates enforcing compliance, full adoption",s:100}]},
+{ id:"chg_2", weight:30, text:"What proportion of operational incidents are traceable to a recent change?",
+options:[{l:"> 60% of incidents are change-related",s:0},{l:"40–60%",s:20},{l:"20–40%",s:50},{l:"10–20%",s:80},{l:"< 10%",s:100}]},
+{ id:"chg_3", weight:25, text:"Are pre-change impact assessment and post-change validation performed as standard practice?",
+options:[{l:"No assessment or validation performed",s:0},{l:"Ad hoc, dependent on individual teams",s:25},{l:"Performed for major changes only",s:50},{l:"Standard for all significant changes",s:80},{l:"Automated impact analysis and validation pipelines",s:100}]},
+{ id:"chg_4", weight:20, text:"How effective are rollback and forward-fix capabilities when changes cause incidents?",
+options:[{l:"No rollback capability — manual recovery only",s:0},{l:"Rollback possible but slow and manual",s:25},{l:"Rollback available for most changes with some delay",s:55},{l:"Fast rollback with defined procedures",s:80},{l:"Automated rollback with near-zero recovery time",s:100}]}
+]
+},
+{
+id:"resilience", title:"Resilience & Disaster Recovery", icon:"◎", weight:14, color:"#F97316",
+questions:[
+{ id:"res_1", weight:35, text:"Are Business Continuity / Disaster Recovery plans in place and regularly tested for critical applications?",
+options:[{l:"No BCP/DR plans exist",s:0},{l:"Plans exist for some apps, never tested",s:20},{l:"Plans tested annually with partial coverage",s:55},{l:"Tested bi-annually, most critical apps covered",s:80},{l:"Continuously tested, full automation, all critical apps",s:100}]},
+{ id:"res_2", weight:35, text:"How well does actual recovery capability align with defined RTO/RPO targets across the portfolio?",
+options:[{l:"RTO/RPO undefined for most applications",s:0},{l:"Defined but actual recovery significantly exceeds targets",s:25},{l:"Meets targets for some critical applications",s:55},{l:"Consistently meets targets for critical apps",s:80},{l:"Exceeds targets with automated failover across all tiers",s:100}]},
+{ id:"res_3", weight:30, text:"What level of redundancy and high availability architecture is implemented across the portfolio?",
+options:[{l:"Single points of failure throughout",s:0},{l:"Limited redundancy, manual failover only",s:25},{l:"Partial HA for critical services",s:55},{l:"HA across most critical components",s:80},{l:"Active-active / geo-redundant across the estate",s:100}]}
+]
+},
+{
+id:"incident", title:"Incident & Problem Management", icon:"⬢", weight:12, color:"#EC4899",
+questions:[
+{ id:"inc_1", weight:30, text:"How mature is the incident management process across IT operations?",
+options:[{l:"No defined process — ad hoc response",s:0},{l:"Basic process, inconsistently followed",s:20},{l:"Defined process with partial adoption",s:50},{l:"Mature, consistently followed with clear ownership",s:80},{l:"Automated triage, routing, and escalation",s:100}]},
+{ id:"inc_2", weight:35, text:"Is a formal Problem Management process in place to identify and eliminate root causes?",
+options:[{l:"No problem management — repeat incidents common",s:0},{l:"Informal, reactive only after major incidents",s:20},{l:"Problem reviews conducted, limited follow-through",s:50},{l:"Proactive problem management with tracked known errors",s:80},{l:"Continuous improvement loop reducing repeat incidents",s:100}]},
+{ id:"inc_3", weight:35, text:"How effectively are major incident reviews (post-mortems) conducted and acted upon?",
+options:[{l:"No post-mortems conducted",s:0},{l:"Occasional, undocumented reviews",s:20},{l:"Reviews conducted but actions rarely followed up",s:45},{l:"Structured post-mortems with tracked actions",s:80},{l:"Blameless post-mortems driving systemic improvement",s:100}]}
+]
+},
+{
+id:"toil", title:"Operational Toil & Team Efficiency", icon:"◧", weight:10, color:"#06B6D4",
+questions:[
+{ id:"toil_1", weight:35, text:"What proportion of operational effort is spent on repetitive manual tasks (toil)?",
+options:[{l:"> 60% of time on manual / toil work",s:0},{l:"40–60%",s:20},{l:"20–40%",s:50},{l:"10–20%",s:80},{l:"< 10% — majority automated",s:100}]},
+{ id:"toil_2", weight:35, text:"How mature is the use of runbooks, automation, and self-healing for routine operational tasks?",
+options:[{l:"No runbooks or automation",s:0},{l:"Some runbooks exist, largely manual execution",s:20},{l:"Runbooks documented, partial automation",s:50},{l:"Most routine tasks automated with runbooks",s:80},{l:"Self-healing and fully automated operations",s:100}]},
+{ id:"toil_3", weight:30, text:"How well is operational team capacity and skills aligned to the portfolio demands?",
+options:[{l:"Significant gaps — team regularly overwhelmed",s:0},{l:"Frequent capacity shortfalls, reactive hiring",s:25},{l:"Generally adequate with occasional gaps",s:55},{l:"Well-aligned with planned development",s:80},{l:"Optimally resourced with proactive upskilling",s:100}]}
+]
+}
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const answers = {};
+let expandedSection = "sla"
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function getRating(score) {
+if (score >= 80) return { label:"Excellent", color:"#10B981" };
+if (score >= 60) return { label:"Good", color:"#00D4FF" };
+if (score >= 40) return { label:"Fair", color:"#F59E0B" };
+if (score >= 20) return { label:"Poor", color:"#F97316" };
+return { label:"Critical", color:"#EF4444" };
+}
+
+function getSectionScore(sectionId) {
+const sa = answers[sectionId] || {};
+const sec = SECTIONS.find(s => s.id === sectionId);
+let total = 0, wsum = 0;
+sec.questions.forEach(q => {
+if (sa[q.id] !== undefined) { total += sa[q.id] * q.weight; wsum += q.weight; }
+});
+return wsum > 0 ? Math.round(total / wsum) : null;
+}
+
+function getOverallScore() {
+let total = 0, wsum = 0;
+SECTIONS.forEach(s => {
+const sc = getSectionScore(s.id);
+if (sc !== null) { total += sc * s.weight; wsum += s.weight; }
+});
+return wsum > 0 ? Math.round(total / wsum) : 0;
+}
+
+function getTotals() {
+const totalQ = SECTIONS.reduce((a,s) => a + s.questions.length, 0);
+const answered = SECTIONS.reduce((a,s) => {
+const sa = answers[s.id] || {};
+return a + Object.keys(sa).length;
+}, 0);
+return { totalQ, answered, pct: Math.round((answered / totalQ) * 100) };
+}
+
+// ─── GAUGE SVG ────────────────────────────────────────────────────────────────
+function buildGaugeSVG(svgEl, score, size) {
+const r = size * 0.38, cx = size/2, cy = size/2;
+const toRad = d => d * Math.PI / 180;
+const startA = -210, endA = 30;
+const arcD = (from, to) => {
+const s = { x: cx + r*Math.cos(toRad(from)), y: cy + r*Math.sin(toRad(from)) };
+const e = { x: cx + r*Math.cos(toRad(to)), y: cy + r*Math.sin(toRad(to)) };
+const lg = (to - from) > 180 ? 1 : 0;
+return `M ${s.x} ${s.y} A ${r} ${r} 0 ${lg} 1 ${e.x} ${e.y}`;
+};
+const filled = startA + (score / 100) * (endA - startA);
+const rating = getRating(score);
+svgEl.setAttribute('viewBox', `0 0 ${size} ${size * 0.72}`);
+svgEl.setAttribute('width', size);
+svgEl.setAttribute('height', Math.round(size * 0.72));
+svgEl.innerHTML = `
+<defs>
+<linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#EF4444"/>
+<stop offset="35%" stop-color="#F59E0B"/>
+<stop offset="65%" stop-color="#00D4FF"/>
+<stop offset="100%" stop-color="#10B981"/>
+</linearGradient>
+</defs>
+<path d="${arcD(startA,endA)}" stroke="#1e293b" stroke-width="15" fill="none" stroke-linecap="round"/>
+<path d="${arcD(startA,filled)}" stroke="url(#gGrad)" stroke-width="15" fill="none" stroke-linecap="round"
+style="filter:drop-shadow(0 0 10px ${rating.color}88);transition:all .8s ease"/>
+<text x="${cx}" y="${cy - 2}" text-anchor="middle" fill="${rating.color}"
+style="font-size:34px;font-weight:800;font-family:'Syne',sans-serif">${score}</text>
+<text x="${cx}" y="${cy + 17}" text-anchor="middle" fill="${rating.color}"
+style="font-size:10px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.12em">${rating.label.toUpperCase()}</text>`;
+}
+
+// ─── RADAR SVG ────────────────────────────────────────────────────────────────
+function buildRadarSVG(svgEl) {
+const SIZE = 220, cx = 110, cy = 110, maxR = SIZE*0.38;
+const toRad = d => d * Math.PI / 180;
+const N = SECTIONS.length;
+const getAngle = i => (i/N)*2*Math.PI - Math.PI/2;
+
+let html = '';
+// grid
+[20,40,60,80,100].forEach(lvl => {
+const rr = (lvl/100)*maxR;
+const pts = SECTIONS.map((_,i) => {
+const a = getAngle(i);
+return `${cx+rr*Math.cos(a)},${cy+rr*Math.sin(a)}`;
+}).join(' ');
+html += `<polygon points="${pts}" fill="none" stroke="#1e293b" stroke-width="1"/>`;
+});
+// spokes
+SECTIONS.forEach((_,i) => {
+const a = getAngle(i);
+html += `<line x1="${cx}" y1="${cy}" x2="${cx+maxR*Math.cos(a)}" y2="${cy+maxR*Math.sin(a)}" stroke="#1e293b" stroke-width="1"/>`;
+});
+// filled polygon
+const scored = SECTIONS.filter(s => getSectionScore(s.id) !== null);
+if (scored.length > 2) {
+const pts = SECTIONS.map((s,i) => {
+const sc = getSectionScore(s.id) || 0;
+const rr = (sc/100)*maxR;
+const a = getAngle(i);
+return `${cx+rr*Math.cos(a)},${cy+rr*Math.sin(a)}`;
+}).join(' ');
+html += `<polygon points="${pts}" fill="#00D4FF18" stroke="#00D4FF" stroke-width="1.5"
+style="filter:drop-shadow(0 0 6px #00D4FF44)"/>`;
+}
+// dots + labels
+SECTIONS.forEach((s,i) => {
+const sc = getSectionScore(s.id);
+const a = getAngle(i);
+const lx = cx + (maxR+22)*Math.cos(a);
+const ly = cy + (maxR+22)*Math.sin(a);
+const shortTitle = s.title.split(' ')[0];
+if (sc !== null) {
+const rr = (sc/100)*maxR;
+html += `<circle cx="${cx+rr*Math.cos(a)}" cy="${cy+rr*Math.sin(a)}" r="3" fill="${s.color}"/>`;
+}
+html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
+fill="${sc !== null ? s.color : '#475569'}"
+style="font-size:8px;font-weight:600;font-family:'Syne',sans-serif">${shortTitle}</text>`;
+});
+svgEl.innerHTML = html;
+}
+
+// ─── TILES ────────────────────────────────────────────────────────────────────
+function renderTiles() {
+const grid = document.getElementById('tiles-grid');
+grid.innerHTML = SECTIONS.map(s => {
+const sc = getSectionScore(s.id);
+const r = sc !== null ? getRating(sc) : null;
+return `<div class="score-tile" onclick="jumpToSection('${s.id}')"
+style="border-color:${sc !== null ? s.color+'33' : '#1e293b'}">
+<div class="tile-top">
+<span class="tile-icon" style="color:${s.color}">${s.icon}</span>
+${sc !== null ? `<span class="tile-score" style="color:${r.color}">${sc}</span>` : ''}
+</div>
+<div class="tile-title">${s.title.length>28 ? s.title.substring(0,28)+'…' : s.title}</div>
+${sc !== null
+? `<div class="tile-bar-wrap"><div class="tile-bar" style="width:${sc}%;background:linear-gradient(90deg,${s.color}66,${s.color})"></div></div>`
+: `<div class="tile-empty">Not started</div>`}
+</div>`;
+}).join('');
+}
+
+// ─── SECTION CARDS ────────────────────────────────────────────────────────────
+function renderSections() {
+const list = document.getElementById('sections-list');
+list.innerHTML = SECTIONS.map(s => {
+const sa = answers[s.id] || {};
+const answered = Object.keys(sa).length;
+const total = s.questions.length;
+const sc = getSectionScore(s.id);
+const r = sc !== null ? getRating(sc) : null;
+const isOpen = expandedSection === s.id;
+const fillW = Math.round((answered/total)*100);
+
+const questionsHTML = s.questions.map((q, qi) => {
+return `<div class="question-block">
+<div class="question-text">
+<span class="q-num" style="color:${s.color}cc">Q${qi+1}.</span>${q.text}
+<span class="q-weight">(${q.weight}% weight)</span>
+</div>
+<div class="options-list">
+${q.options.map(opt => {
+const sel = (sa[q.id] === opt.s);
+return `<div class="option-row ${sel ? 'selected' : ''}"
+style="${sel ? `border-color:${s.color};background:${s.color}18` : ''}"
+onclick="selectAnswer('${s.id}','${q.id}',${opt.s})">
+<span class="option-label">${opt.l}</span>
+<span class="option-score" style="${sel ? `color:${s.color};background:${s.color}22` : ''}">${opt.s}</span>
+</div>`;
+}).join('')}
+</div>
+</div>`;
+}).join('');
+
+return `<div class="section-card ${isOpen?'open':''}" id="sec-${s.id}" style="${isOpen?`border-color:${s.color}66`:''}" >
+<div class="section-header" onclick="toggleSection('${s.id}')">
+<div class="section-header-left">
+<span class="section-icon" style="color:${s.color}">${s.icon}</span>
+<div>
+<div class="section-title-text">${s.title}</div>
+<div class="section-meta">Weight: ${s.weight}% · ${answered}/${total} answered</div>
+</div>
+</div>
+<div class="section-header-right">
+${sc !== null ? `<div class="section-score-display">
+<div class="section-score-num" style="color:${r.color}">${sc}</div>
+<div class="section-score-label" style="color:${r.color}">${r.label}</div>
+</div>` : ''}
+<div class="chevron" style="border:1px solid ${s.color}44;color:${s.color}">▾</div>
+</div>
+</div>
+<div class="section-progress-bar">
+<div class="section-progress-fill" style="width:${fillW}%;background:linear-gradient(90deg,${s.color}66,${s.color})"></div>
+</div>
+<div class="section-body">${questionsHTML}</div>
+</div>`;
+}).join('');
+}
+
+// ─── REPORT PAGE ──────────────────────────────────────────────────────────────
+function renderReport() {
+const { totalQ, answered, pct } = getTotals();
+const overall = getOverallScore();
+const rating = getRating(overall);
+const rc = document.getElementById('report-content');
+
+if (pct < 30) {
+rc.innerHTML = `<div class="report-incomplete-msg">
+<strong>Assessment Incomplete</strong>
+Please answer at least 30% of questions to generate a report.<br>
+Currently at <strong style="color:#00D4FF">${pct}%</strong> (${answered} / ${totalQ} answered).
+</div>`;
+return;
+}
+
+const sectionScores = SECTIONS.map(s => ({
+...s, score: getSectionScore(s.id)
+}));
+const scored = sectionScores.filter(s => s.score !== null);
+const sorted = [...scored].sort((a,b) => b.score - a.score);
+const priority = [...scored].filter(s => s.score < 60).sort((a,b) => a.score - b.score);
+
+// Build radar for report
+const SIZE = 220, cx2 = 110, cy2 = 110, maxR2 = SIZE*0.38;
+const toRad2 = d => d * Math.PI / 180;
+const N2 = SECTIONS.length;
+const getA2 = i => (i/N2)*2*Math.PI - Math.PI/2;
+let radarHTML = '';
+[20,40,60,80,100].forEach(lvl => {
+const rr = (lvl/100)*maxR2;
+const pts = SECTIONS.map((_,i) => {
+const a = getA2(i);
+return `${cx2+rr*Math.cos(a)},${cy2+rr*Math.sin(a)}`;
+}).join(' ');
+radarHTML += `<polygon points="${pts}" fill="none" stroke="#1e293b" stroke-width="1"/>`;
+});
+SECTIONS.forEach((_,i) => {
+const a = getA2(i);
+radarHTML += `<line x1="${cx2}" y1="${cy2}" x2="${cx2+maxR2*Math.cos(a)}" y2="${cy2+maxR2*Math.sin(a)}" stroke="#1e293b" stroke-width="1"/>`;
+});
+if (scored.length > 2) {
+const pts = SECTIONS.map((s,i) => {
+const sc2 = s.score !== null ? s.score : 0;
+const rr = (sc2/100)*maxR2;
+const a = getA2(i);
+return `${cx2+rr*Math.cos(a)},${cy2+rr*Math.sin(a)}`;
+}).join(' ');
+radarHTML += `<polygon points="${pts}" fill="#00D4FF18" stroke="#00D4FF" stroke-width="1.5" style="filter:drop-shadow(0 0 6px #00D4FF44)"/>`;
+}
+SECTIONS.forEach((s,i) => {
+const sc2 = s.score;
+const a = getA2(i);
+const lx = cx2 + (maxR2+22)*Math.cos(a);
+const ly = cy2 + (maxR2+22)*Math.sin(a);
+const shortTitle = s.title.split(' ')[0];
+if (sc2 !== null) {
+const rr = (sc2/100)*maxR2;
+radarHTML += `<circle cx="${cx2+rr*Math.cos(a)}" cy="${cy2+rr*Math.sin(a)}" r="3" fill="${s.color}"/>`;
+}
+radarHTML += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
+fill="${sc2 !== null ? s.color : '#475569'}"
+style="font-size:8px;font-weight:600;font-family:'Syne',sans-serif">${shortTitle}</text>`;
+});
+
+// Build gauge for report
+const gSize = 180;
+const gR = gSize*0.38, gcx = gSize/2, gcy = gSize/2;
+const toRad3 = d => d * Math.PI / 180;
+const gStartA = -210, gEndA = 30;
+const gArcD = (from, to) => {
+const s2 = { x: gcx+gR*Math.cos(toRad3(from)), y: gcy+gR*Math.sin(toRad3(from)) };
+const e2 = { x: gcx+gR*Math.cos(toRad3(to)), y: gcy+gR*Math.sin(toRad3(to)) };
+const lg = (to-from)>180?1:0;
+return `M ${s2.x} ${s2.y} A ${gR} ${gR} 0 ${lg} 1 ${e2.x} ${e2.y}`;
+};
+const gFilled = gStartA + (overall/100)*(gEndA-gStartA);
+const gaugeHTML = `<defs><linearGradient id="rGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#EF4444"/><stop offset="35%" stop-color="#F59E0B"/>
+<stop offset="65%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#10B981"/>
+</linearGradient></defs>
+<path d="${gArcD(gStartA,gEndA)}" stroke="#1e293b" stroke-width="14" fill="none" stroke-linecap="round"/>
+<path d="${gArcD(gStartA,gFilled)}" stroke="url(#rGrad)" stroke-width="14" fill="none" stroke-linecap="round"
+style="filter:drop-shadow(0 0 10px ${rating.color}88)"/>
+<text x="${gcx}" y="${gcy-2}" text-anchor="middle" fill="${rating.color}"
+style="font-size:30px;font-weight:800;font-family:'Syne',sans-serif">${overall}</text>
+<text x="${gcx}" y="${gcy+16}" text-anchor="middle" fill="${rating.color}"
+style="font-size:10px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.12em">${rating.label.toUpperCase()}</text>`;
+
+const dateStr = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+rc.innerHTML = `
+<!-- Header -->
+<div class="report-header-card">
+<div>
+<svg width="${gSize}" height="${Math.round(gSize*0.72)}" viewBox="0 0 ${gSize} ${Math.round(gSize*0.72)}">${gaugeHTML}</svg>
+<div style="font-size:11px;color:#64748b;text-align:center;margin-top:4px;letter-spacing:.08em;text-transform:uppercase">Overall Score</div>
+</div>
+<div class="report-title-block">
+<div class="report-title">IT Application Operations<br>Health Report</div>
+<div class="report-date">${dateStr} &nbsp;·&nbsp; ${pct}% assessment completion</div>
+<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+${['Critical','Poor','Fair','Good','Excellent'].map((lbl,i) => {
+const colors = ['#EF4444','#F97316','#F59E0B','#00D4FF','#10B981'];
+const ranges = ['0–19','20–39','40–59','60–79','80–100'];
+return `<div style="display:flex;align-items:center;gap:5px">
+<div style="width:10px;height:10px;border-radius:50%;background:${colors[i]}"></div>
+<span style="font-size:10px;color:#64748b">${lbl} <span style="color:#475569">${ranges[i]}</span></span>
+</div>`;
+}).join('')}
+</div>
+</div>
+</div>
+
+<!-- KPI metrics -->
+<div class="metrics-row">
+<div class="metric-card">
+<div class="metric-label">Overall Score</div>
+<div class="metric-value" style="color:${rating.color}">${overall}</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Health Rating</div>
+<div class="metric-value" style="color:${rating.color}">${rating.label}</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Completion</div>
+<div class="metric-value" style="color:#00D4FF">${pct}%</div>
+</div>
+</div>
+
+<!-- Visuals + Breakdown -->
+<div class="report-visuals">
+<div class="report-radar">
+<div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px">Capability Radar</div>
+<svg class="report-radar" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${radarHTML}</svg>
+</div>
+<div class="report-breakdown" style="flex:1;min-width:260px">
+<div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:14px">Section Scores (ranked)</div>
+${sorted.map(s => {
+const r2 = getRating(s.score);
+return `<div class="breakdown-row">
+<span class="breakdown-icon" style="color:${s.color}">${s.icon}</span>
+<div class="breakdown-info">
+<div class="breakdown-top">
+<span class="breakdown-name">${s.title}</span>
+<span class="breakdown-score" style="color:${r2.color}">${s.score} · ${r2.label}</span>
+</div>
+<div class="breakdown-bar-wrap">
+<div class="breakdown-bar" style="width:${s.score}%;background:linear-gradient(90deg,${s.color}55,${s.color})"></div>
+</div>
+</div>
+</div>`;
+}).join('')}
+${sectionScores.filter(s=>s.score===null).map(s =>
+`<div class="breakdown-row">
+<span class="breakdown-icon" style="color:${s.color}">${s.icon}</span>
+<div class="breakdown-info">
+<div class="breakdown-top">
+<span class="breakdown-name" style="color:#475569">${s.title}</span>
+<span style="font-size:11px;color:#475569">Not assessed</span>
+</div>
+</div>
+</div>`).join('')}
+</div>
+</div>
+
+<!-- Per-section detail table -->
+<div class="report-section-title">Detailed Section Breakdown</div>
+<div style="background:#0f172a;border:1px solid #1e293b;border-radius:14px;overflow:hidden;margin-bottom:24px">
+<table style="width:100%;border-collapse:collapse">
+<thead>
+<tr style="background:#1e293b">
+<th style="padding:10px 16px;text-align:left;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Section</th>
+<th style="padding:10px 16px;text-align:center;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Weight</th>
+<th style="padding:10px 16px;text-align:center;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Score</th>
+<th style="padding:10px 16px;text-align:center;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Rating</th>
+<th style="padding:10px 16px;text-align:center;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600">Answered</th>
+<th style="padding:10px 16px;text-align:left;font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;font-weight:600;min-width:140px">Progress</th>
+</tr>
+</thead>
+<tbody>
+${sectionScores.map((s, idx) => {
+const r2 = s.score !== null ? getRating(s.score) : null;
+const sa2 = answers[s.id] || {};
+const answeredC = Object.keys(sa2).length;
+const pctQ = Math.round((answeredC/s.questions.length)*100);
+return `<tr style="border-top:1px solid #1e293b;${idx%2===1?'background:#0a1120':''}">
+<td style="padding:10px 16px">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="color:${s.color};font-size:15px">${s.icon}</span>
+<span style="font-size:12px;color:#cbd5e1;font-weight:500">${s.title}</span>
+</div>
+</td>
+<td style="padding:10px 16px;text-align:center;font-size:12px;color:#64748b">${s.weight}%</td>
+<td style="padding:10px 16px;text-align:center">
+<span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${r2?r2.color:'#475569'}">${s.score !== null ? s.score : '—'}</span>
+</td>
+<td style="padding:10px 16px;text-align:center">
+<span style="font-size:11px;font-weight:600;color:${r2?r2.color:'#475569'};
+background:${r2?r2.color+'15':'#1e293b'};padding:3px 10px;border-radius:20px">
+${r2 ? r2.label : 'N/A'}
+</span>
+</td>
+<td style="padding:10px 16px;text-align:center;font-size:12px;color:#64748b">${answeredC}/${s.questions.length}</td>
+<td style="padding:10px 16px">
+<div style="height:5px;background:#1e293b;border-radius:3px">
+<div style="height:100%;width:${pctQ}%;background:linear-gradient(90deg,${s.color}66,${s.color});border-radius:3px"></div>
+</div>
+</td>
+</tr>`;
+}).join('')}
+</tbody>
+</table>
+</div>
+
+<!-- Priority actions -->
+<div class="report-section-title">Priority Improvement Actions</div>
+${priority.length === 0
+? `<div class="all-good">✓ No critical areas identified. Continue maintaining current standards across all domains.</div>`
+: priority.map(s => {
+const r2 = getRating(s.score);
+const msg = s.score < 20
+? `Critical gap. Immediate escalation required — define an emergency remediation plan with executive sponsorship.`
+: s.score < 40
+? `Significant weakness. Build a structured improvement roadmap within 30 days with clear ownership and milestones.`
+: `Below acceptable threshold. Identify specific gaps from assessment responses and deliver targeted improvements within 60–90 days.`;
+return `<div class="action-card" style="background:${s.color}0d;border:1px solid ${s.color}33">
+<span class="action-warn" style="color:${s.color}">⚠</span>
+<div>
+<div class="action-title" style="color:${s.color}">${s.title} — Score: ${s.score} (${r2.label})</div>
+<div class="action-desc">${msg}</div>
+</div>
+</div>`;
+}).join('')}
+
+<!-- Footer note -->
+<div style="margin-top:32px;padding:16px 20px;background:#0f172a;border:1px solid #1e293b;border-radius:12px;font-size:11px;color:#475569;line-height:1.6">
+This report reflects responses provided as at ${dateStr}. Scores are weighted averages within each section and across all sections.
+Sections with unanswered questions are excluded from the weighted overall score calculation.
+Reassess periodically to track maturity improvements over time.
+</div>
+`;
+}
+
+// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
+function selectAnswer(sectionId, qId, score) {
+if (!answers[sectionId]) answers[sectionId] = {};
+answers[sectionId][qId] = score;
+renderAll();
+}
+
+function toggleSection(id) {
+expandedSection = expandedSection === id ? null : id;
+renderSections();
+}
+
+function jumpToSection(id) {
+expandedSection = id;
+showPage('assess');
+renderSections();
+setTimeout(() => {
+const el = document.getElementById('sec-'+id);
+if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}, 50);
+}
+
+function showPage(name) {
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.getElementById('page-'+name).classList.add('active');
+event.target.classList.add('active');
+if (name === 'report') renderReport();
+}
+
+function renderAll() {
+const { totalQ, answered, pct } = getTotals();
+document.getElementById('nav-answered').textContent = answered;
+document.getElementById('nav-total').textContent = totalQ;
+document.getElementById('nav-pct').textContent = pct + '% complete';
+
+const overall = getOverallScore();
+buildGaugeSVG(document.getElementById('gauge-svg'), overall, 210);
+buildRadarSVG(document.getElementById('radar-svg'));
+renderTiles();
+renderSections();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+const totalQ = SECTIONS.reduce((a,s) => a + s.questions.length, 0);
+document.getElementById('nav-total').textContent = totalQ;
+buildGaugeSVG(document.getElementById('gauge-svg'), 0, 210);
+buildRadarSVG(document.getElementById('radar-svg'));
+renderTiles();
+renderSections();
+});
+</script>
 </body>
 </html>
